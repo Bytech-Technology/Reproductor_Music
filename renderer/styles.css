@@ -1,0 +1,243 @@
+:root {
+  --blur: 8px;
+  --backgrund_opacity: rgba(0, 0, 0, .6);
+  --background_controls: rgba(0, 0, 0, .45);
+  --violet: rgb(225, 107, 255);
+  --hover_music: rgba(26, 26, 26, 0.39);
+  --music_playin: rgb(4, 4, 5);
+  --gray_back: #ADADAD;
+}
+
+/* Reset básico */
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Layout general */
+body {
+  display: flex;
+  height: 100dvh;
+}
+
+/* loader */
+
+.loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+  font-family: sans-serif;
+}
+
+#loader-top {
+  z-index: 9998;
+}
+
+#loader-bottom {
+  z-index: 9997;
+}
+
+#loader-top .loader-text img {
+  position: relative;
+  bottom: -32px;
+  background: #181b2c;
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 0 5px black;
+}
+
+#loader-top,
+#loader-bottom {
+  flex: 1;
+  height: 50%;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: end;
+  background: #181b2c;
+  transition: transform 2s ease-in-out;
+}
+
+/* Animación de salida */
+#loader.loader-exit #loader-top {
+  transform: translateY(-100%);
+}
+
+#loader.loader-exit #loader-bottom {
+  transform: translateY(100%);
+}
+
+
+.content_music_view {
+  width: 70%;
+  position: relative;
+  display: flex;
+}
+
+.music-list {
+  width: 30%;
+  padding: 1rem;
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  background: var(--backgrund_opacity);
+  backdrop-filter: blur(var(--blur));
+  box-shadow: 0 0 15px black;
+
+  /* Scroll personalizado (Webkit) */
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--violet);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: var(--gray_back);
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  .song-item.playing {
+    background: var(--music_playin);
+    transition: all 1s ease-in-out;
+  }
+
+  .song-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    height: 100px;
+    border-radius: 20px;
+    transition: all .3s ease-in-out;
+    cursor: pointer;
+            text-overflow: ellipsis; 
+    &:hover {
+      background: var(--hover_music);
+    }
+
+
+    .img-container {
+      margin-right: .5rem;
+      overflow: hidden;
+      width: 70px;
+      height: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+
+      }
+    }
+
+    .info-container {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .song-title {
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .song-autor {
+      text-transform: uppercase;
+      color: var(--gray_back);
+      margin-bottom: .5rem;
+    }
+
+    .song-duration {
+      color: var(--violet);
+      margin-top: auto;
+    }
+  }
+}
+
+/* Controles */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+  background: var(--background_controls);
+  /* backdrop-filter: blur(var(--blur)); */
+
+  .controls-buttons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    button {
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+  }
+}
+
+/* Portada (título y autor) */
+.cover_container {
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  background: var(--background_controls);
+  backdrop-filter: blur(var(--blur));
+  height: 35px;
+  padding: 12px 2rem;
+  border-radius: 50px 50px 0 0;
+  text-transform: uppercase;
+}
+
+/* Progreso de reproducción */
+.progress_container {
+  padding: 10px 1rem;
+  width: 20%;
+
+  canvas {
+    width: 50px;
+    height: 50px;
+    display: block;
+  }
+}
+
+.minute {
+  width: 20%;
+  color: var(--violet);
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 1rem;
+
+  span{
+    font-weight: bold;
+  }
+  button {
+      
+      background: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+}

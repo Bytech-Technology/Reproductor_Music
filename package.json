@@ -1,0 +1,41 @@
+{
+  "name": "REPRODUCTOR",
+  "version": "1.0.0",
+  "main": "main.js",
+  "build": {
+    "appId": "com.REPRODUCTOR.app",
+    "productName": "REPRODUCTOR",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "renderer/**/*",
+      "main.js",
+      "preload.js",
+      "node_modules/**/*",
+      "package.json",
+      "assets/**/*",
+      "lib/**/*",
+      "favicon.ico"
+    ],
+    "win": {  
+      "icon": "favicon.ico"
+    }
+  },
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "electron": "36.2.1",
+    "electron-builder": "^26.0.12"
+  },
+  "dependencies": {
+    "music-metadata": "^11.2.3"
+  }
+}

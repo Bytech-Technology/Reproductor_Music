@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REPRODUCTOR</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="music_background">
+    <div class="loader" id="loader">
+        <div id="loader-top">
+            <div class="loader-text">
+                <img src="../favicon.ico" height="64" width="64">
+            </div>
+        </div>
+        <div id="loader-bottom">
+        </div>
+    </div>
+    <!-- music_background  style -->
+     <div class="content_music_view"> 
+        <div class="controls" id="controls" style="padding: 10px 1rem;">
+            <div class="cover_container">
+                <span id="current-title" style="color: white;"></span>
+                <span id="current-title-autor" style="color: white;"></span>
+            </div>
+            <div class="progress_container">
+                <canvas id="visualizer"></canvas>
+            </div>
+            <div class="controls-buttons">
+                <button id="prev-btn"><img src="../assets/skip-previous.svg"></button>
+                <button id="play-btn"><img src="../assets/Play.svg"></button>
+                <button id="pause-btn" style="display: none;"><img src="../assets/Pause.svg"></button>
+                <button id="next-btn"><img src="../assets/skip-next.svg"></button>
+            </div>
+            <div class="minute">
+                <span id="minute-music"></span>
+                <button id="repeat"><img src="../assets/repeat.svg"></button>
+                <button id="shuffle" style="display: none;"><img src="../assets/suffle.svg"></button>
+            </div>
+        </div>
+    </div>
+    <div id="music-list" class="music-list"></div>
+
+    <audio id="audio" src=""></audio>
+
+    <!-- cripts -->
+    <script src="script.js"></script>
+
+</body>
+
+</html>
