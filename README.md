@@ -33,8 +33,8 @@
 1. **Clonar el repositorio:**
 
 ```bash
-git clone https://github.com/tuusuario/tu-repo.git
-cd tu-repo
+git clone https://github.com/ZomboySoul/Reproductor_Music.git
+cd Reproductor_Music
 ```
 
 2. **Instalar dependencias:**
@@ -83,8 +83,8 @@ npm start
 
 ```json
 {
-  "electron": "^X.X.X",
-  "music-metadata": "^X.X.X"
+  "electron": "^36.2.1",
+  "music-metadata": "^11.2.3"
 }
 ```
 
