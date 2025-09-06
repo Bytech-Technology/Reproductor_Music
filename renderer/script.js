@@ -103,6 +103,17 @@ window.api.getMusicList().then(songs => {
             currentTitle.textContent = song.title.toLowerCase();
         }
 
+        // 🔥 Enviar autor + título al tray
+        const traySongTitle = `${currentAutor.textContent} - ${currentTitle.textContent}`;
+        window.electronAPI.updateCurrentSong(traySongTitle);
+        
+        // 🔥 Enviar carátula (si existe) al tray
+        if (song.cover) {
+            window.electronAPI.updateCurrentCover(song.cover);
+        } else {
+            window.electronAPI.updateCurrentCover(null); // si no hay carátula, volver al ícono por defecto
+        }
+
         audio.src = song.path;
 
         if (autoPlay) {
@@ -293,4 +304,19 @@ window.api.getMusicList().then(songs => {
         }
     });
 
+
+});
+
+window.electronAPI.onTrayControl((action) => {
+    if (action === 'togglePlayPause') {
+        if (audio.paused) {
+            audio.play();
+        } else {
+            audio.pause();
+        }
+    } else if (action === 'next') {
+        nextBtn.click();
+    } else if (action === 'prev') {
+        prevBtn.click();
+    }
 });
