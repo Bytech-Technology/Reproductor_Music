@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REPRODUCTOR</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-
 <body class="music_background">
+
+    <!-- LOADER -->
     <div class="loader" id="loader">
         <div id="loader-top">
             <div class="loader-text">
@@ -18,8 +18,9 @@
         <div id="loader-bottom">
         </div>
     </div>
-    <!-- music_background  style -->
-     <div class="content_music_view"> 
+
+    <!-- CONTENT MUSIC -->
+    <div class="content_music_view">
         <div class="controls" id="controls" style="padding: 10px 1rem;">
             <div class="cover_container">
                 <span id="current-title" style="color: white;"></span>
@@ -41,13 +42,12 @@
             </div>
         </div>
     </div>
+    <!-- LIST MUSIC CARD -->
     <div id="music-list" class="music-list"></div>
 
     <audio id="audio" src=""></audio>
 
-    <!-- cripts -->
+    <!-- JAVASCRIPT -->
     <script src="script.js"></script>
-
 </body>
-
 </html>
