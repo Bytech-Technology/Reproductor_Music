@@ -43,11 +43,24 @@
         </div>
     </div>
     <!-- LIST MUSIC -->
-    <div id="music-list" class="music-list"></div>
+    <div class="music-list">
+        <div class="library-header">
+            <button id="tab-all" class="active">Todas</button>
+            <button id="tab-library">Biblioteca</button>
+        </div>
+        <div id="music-list"></div>
+        <div id="album-modal" class="album-modal hidden">
+            <div class="album-card">
+                <h3>Crear nuevo álbum</h3>
+                <input type="text" id="album-name" placeholder="Nombre del álbum">
+                <button id="create-album">Crear</button>
+                <button id="close-album">Cancelar</button>
+            </div>
+        </div>
 
     <audio id="audio" src=""></audio>
 
     <!-- JAVASCRIPT -->
-    <script src="script.js"></script>
+    <script src="script copy.js"  type="module"></script>
 </body>
 </html>
