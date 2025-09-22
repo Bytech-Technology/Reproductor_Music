@@ -14,16 +14,16 @@
 
 ```
 📁 your-project/
-├── main.js                # Proceso principal (ventana y lógica backend)
-├── preload.js             # Comunicación segura entre frontend y backend
+├── main.js               # Proceso principal (ventana y lógica backend)
+├── preload.js            # Comunicación segura entre frontend y backend
 ├── package.json
 ├── .gitignore
+├── 📁 assets/            # Íconos SVG para controles
 ├── 📁 renderer/
-│   ├── index.html         # Interfaz principal del reproductor
-│   ├── styles.css         # Estilos de la interfaz
-│   ├── script.js          # Lógica del reproductor (frontend)
-│   └── 📁 assets/         # Íconos SVG para controles
-└── 📁 node_modules/       # Dependencias de Node.js
+│   ├── index.html        # Interfaz principal del reproductor
+│   ├── styles.css        # Estilos de la interfaz
+│   └── script.js         # Lógica del reproductor (frontend)
+└── 📁 node_modules/      # Dependencias de Node.js
 ```
 
 ---
