@@ -1,322 +1,217 @@
-window.api.getMusicList().then(songs => {
-    const listContainer = document.getElementById('music-list');
-    let currentIndex = -1;
-    let songsList = songs;
+/**
+ * script.js
+ * Punto de entrada principal del reproductor de música.
+ * - Carga lista de canciones desde la API de Electron.
+ * - Inicializa visualizador, reproductor, tabs, álbumes, loader, controles y eventos.
+ * - Administra el estado global del reproductor.
+ */
 
+import { getEl } from './js/dom.js';
+import { renderSongs } from "./js/ui.js";
+import { initTimer } from './js/timer.js';
+import { initTabs } from './js/libraryView.js';
+import { initVisualizer } from './js/visualizer.js';
+import { hideLoader, showLoader } from './js/loader.js';
+import { getAlbums, getLibrary } from './js/storage.js';
+import { initTrayControls } from './js/trayControls.js';
+import { initControls, togglePlayPause } from './js/controls.js';
+import { showAddToAlbumsModal, initAlbumHandlers } from "./js/albums.js";
+import { initPlayer, next, prev, setCurrentIndex } from './js/player.js';
 
-    const playBtn = document.getElementById('play-btn');
-    const pauseBtn = document.getElementById('pause-btn');
-    const nextBtn = document.getElementById('next-btn');
-    const prevBtn = document.getElementById('prev-btn');
-    const shuffleBtn = document.getElementById('shuffle');
-    const repeatBtn = document.getElementById('repeat');
-    repeatBtn.classList.add("active");
-    let isShuffle = false;
-    let isRepeat = true;
+console.log("[DEBUG] script.js cargado");
 
-    const currentTitle = document.getElementById('current-title');
-    const currentAutor = document.getElementById('current-title-autor');
-
-    const contentViews = document.getElementsByClassName('music_background')
-    const minuteContent = document.getElementById('minute-music');
-
-    const loader = document.getElementById('loader');
-    loader.style.display = 'flex';
-
-    const canvas = document.getElementById("visualizer");
-    const ctx = canvas.getContext("2d");
-    const audio = document.getElementById("audio");
-
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const source = audioContext.createMediaElementSource(audio);
-    const analyser = audioContext.createAnalyser();
-    analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-
-    function resizeCanvas() {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+/**
+ * Punto de entrada principal
+ */
+function initApp() {
+    if (!window.api?.getMusicList) {
+        console.error("[DEBUG] window.api.getMusicList NO está disponible");
+        return;
     }
 
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    window.api.getMusicList()
+        .then(handleMusicList)
+        .catch(err => console.error("[DEBUG] getMusicList REJECTED:", err));
+}
 
-    function draw() {
-        requestAnimationFrame(draw);
-        analyser.getByteFrequencyData(dataArray);
+/**
+ * Maneja la lista de canciones obtenida de la API
+ */
+function handleMusicList(songs) {
+    try {
+        console.log("[DEBUG] getMusicList resolved. songs:", Array.isArray(songs) ? songs.length : songs);
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const dom = initDOMElements();
+        if (!dom.listContainer) {
+            console.error("[DEBUG] falta #music-list en el DOM");
+            return;
+        }
 
-        const numBars = 12;
-        const barWidth = (canvas.width / numBars);
-        let x = 0;
-        const binsPerBar = Math.floor(bufferLength / numBars);
+        const state = initState(songs);
+        const { albums, library } = state;
 
-        for (let i = 0; i < numBars; i++) {
-            let sum = 0;
-            for (let j = 0; j < binsPerBar; j++) {
-                sum += dataArray[(i * binsPerBar) + j];
+        showLoader();
+        initVisualizer(dom.audio);
+        initPlayer(dom.audio, state.songsList, loadSong, togglePlayPause);
+        initAlbumHandlers(dom.createAlbumBtn, dom.closeAlbumBtn, dom.albumModal, albums, library, null);
+
+        renderSongs(
+            state.songsList,
+            dom.listContainer,
+            (song) => showAddToAlbumsModal(dom.albumModal, albums, library, song, state.songsList, state.currentAlbum, dom.listContainer, dom.tabLibrary, loadSong),
+            loadSong
+        );
+
+        const getCurrentFilteredSongs = initTabs(
+            dom.tabAll, dom.tabLibrary, dom.listContainer,
+            state.songsList, albums, library,
+            state, loadSong, dom.albumModal
+        );
+
+        if (state.songsList.length > 0) loadSong(0, false);
+
+        hideLoader();
+        initControls(dom.audio);
+        initTimer(dom.audio, dom.minuteContent);
+
+        bindAudioEvents(dom.audio);
+        initTrayControls(dom.audio, next, prev);
+
+        console.log("[DEBUG] getMusicList handler finalizado correctamente");
+
+        // Funciones internas accesibles
+        function loadSong(index, autoPlay = true) {
+            setCurrentIndex(index);
+            state.currentFilteredSongs = getCurrentFilteredSongs();
+            if (!isValidIndex(index, state.currentFilteredSongs)) return;
+
+            state.currentIndex = index;
+            highlightCurrentSong(dom.listContainer, dom.audio, state);
+
+            const song = state.currentFilteredSongs[state.currentIndex];
+            updateSongInfo(dom, song);
+            updateTray(song, dom);
+            updateBackground(dom.contentViews, song);
+
+            if (dom.audio) {
+                dom.audio.src = song.path;
+                if (autoPlay) playAudio(dom.audio);
             }
-            const avg = sum / binsPerBar;
-            const barHeight = avg / 2;
-            const y = canvas.height - barHeight;
-            const radius = Math.min(barWidth / 2, barHeight / 2);
-
-            ctx.beginPath();
-            roundedRect(ctx, x, y, barWidth, barHeight, radius);
-            ctx.fillStyle = "#E886AC";
-            ctx.fill();
-
-            x += barWidth + 5;
         }
+    } catch (err) {
+        console.error("[DEBUG] Error dentro del handler getMusicList:", err);
     }
+}
 
-    function roundedRect(ctx, x, y, width, height, radius) {
-        ctx.moveTo(x + radius, y);
-        ctx.lineTo(x + width - radius, y);
-        ctx.arcTo(x + width, y, x + width, y + radius, radius);
-        ctx.lineTo(x + width, y + height - radius);
-        ctx.arcTo(x + width, y + height, x + width - radius, y + height, radius);
-        ctx.lineTo(x + radius, y + height);
-        ctx.arcTo(x, y + height, x, y + height - radius, radius);
-        ctx.lineTo(x, y + radius);
-        ctx.arcTo(x, y, x + radius, y, radius);
-        ctx.closePath();
+/** ==============================
+ * Utilidades y helpers
+ * ============================== */
+
+/** Inicializa elementos del DOM */
+function initDOMElements() {
+    return {
+        listContainer: document.getElementById('music-list'),
+        audio: getEl("audio"),
+        currentTitle: getEl('current-title'),
+        currentAutor: getEl('current-title-autor'),
+        contentViews: document.getElementsByClassName('music_background'),
+        minuteContent: getEl('minute-music'),
+        tabAll: getEl("tab-all"),
+        tabLibrary: getEl("tab-library"),
+        albumModal: getEl("album-modal"),
+        createAlbumBtn: getEl("create-album"),
+        closeAlbumBtn: getEl("close-album")
+    };
+}
+
+/** Inicializa estado global */
+function initState(songs) {
+    const songsList = (Array.isArray(songs) ? songs : []).map((song, i) => ({
+        ...song,
+        id: song.id ?? i
+    }));
+
+    return {
+        songsList,
+        currentIndex: -1,
+        currentAlbum: null,
+        currentFilteredSongs: songsList,
+        albums: getAlbums(),
+        library: getLibrary()
+    };
+}
+
+/** Valida índice dentro de lista */
+function isValidIndex(index, list) {
+    return index >= 0 && index < list.length;
+}
+
+/** Resalta canción actual */
+function highlightCurrentSong(listContainer, audio, state) {
+    if (!listContainer) return;
+
+    const items = listContainer.querySelectorAll('.song-item');
+    items.forEach((item, idx) => {
+        const song = state.currentFilteredSongs[idx];
+        const isPlaying = song?.id === state.currentFilteredSongs[state.currentIndex]?.id;
+        item.classList.toggle('playing', isPlaying);
+    });
+
+    togglePlayPause(!audio.paused);
+}
+
+/** Actualiza info de canción en UI */
+function updateSongInfo(dom, song) {
+    const { currentAutor, currentTitle } = dom;
+    const parts = song.title.split(" - ");
+
+    if (parts.length >= 2) {
+        if (currentAutor) currentAutor.textContent = parts[0].toLowerCase();
+        if (currentTitle) currentTitle.textContent = parts.slice(1).join(" - ").toLowerCase();
+    } else {
+        if (currentAutor) currentAutor.textContent = "desconocido";
+        if (currentTitle) currentTitle.textContent = song.title.toLowerCase();
     }
+}
 
-    function loadSong(index, autoPlay = true) {
-        if (index < 0 || index >= songsList.length) return;
-        currentIndex = index;
-        highlightCurrentSong();
+/** Actualiza info en tray de Electron */
+function updateTray(song, dom) {
+    const { currentAutor, currentTitle } = dom;
+    const traySongTitle = `${currentAutor?.textContent ?? ""} - ${currentTitle?.textContent ?? ""}`;
 
-        const song = songsList[currentIndex];
-        const parts = song.title.split(" - ");
-        if (parts.length >= 2) {
-            currentAutor.textContent = parts[0].toLowerCase();
-            currentTitle.textContent = parts.slice(1).join(" - ").toLowerCase();
-        } else {
-            currentAutor.textContent = "desconocido";
-            currentTitle.textContent = song.title.toLowerCase();
-        }
-
-        // 🔥 Enviar autor + título al tray
-        const traySongTitle = `${currentAutor.textContent} - ${currentTitle.textContent}`;
+    if (window.electronAPI?.updateCurrentSong) {
         window.electronAPI.updateCurrentSong(traySongTitle);
-        
-        // 🔥 Enviar carátula (si existe) al tray
+    }
+
+    if (window.electronAPI?.updateCurrentCover) {
+        window.electronAPI.updateCurrentCover(song.cover ?? null);
+    }
+}
+
+/** Actualiza fondo dinámico */
+function updateBackground(contentViews, song) {
+    for (const view of contentViews) {
         if (song.cover) {
-            window.electronAPI.updateCurrentCover(song.cover);
+            view.style.backgroundImage = `url('${song.cover}')`;
+            view.style.backgroundSize = '100% 100%';
         } else {
-            window.electronAPI.updateCurrentCover(null); // si no hay carátula, volver al ícono por defecto
-        }
-
-        audio.src = song.path;
-
-        if (autoPlay) {
-            audio.play();
-            audioContext.resume();
-            togglePlayPause(true);
-            draw();
-        } else {
-            togglePlayPause(false);
-        }
-
-        for (const contentView of contentViews) {
-            if (song.cover) {
-                contentView.style.backgroundImage = `url('${song.cover}')`;
-                contentView.style.backgroundSize = '100% 100%';
-            } else {
-                contentView.style.backgroundImage = 'none';
-                contentView.style.backgroundColor = '#181b2c';
-            }
+            view.style.backgroundImage = 'none';
+            view.style.backgroundColor = '#181b2c';
         }
     }
+}
 
-    function highlightCurrentSong() {
-        const items = listContainer.querySelectorAll('.song-item');
-        items.forEach((item, idx) => {
-            item.classList.toggle('playing', idx === currentIndex);
-            if (idx === currentIndex) {
-                item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-    }
+/** Maneja reproducción segura */
+function playAudio(audio) {
+    audio.play().catch(err => console.warn("[DEBUG] audio.play() falló:", err));
+}
 
-    function togglePlayPause(isPlaying) {
-        playBtn.style.display = isPlaying ? 'none' : 'inline-block';
-        pauseBtn.style.display = isPlaying ? 'inline-block' : 'none';
-    }
+/** Eventos de audio */
+function bindAudioEvents(audio) {
+    audio.addEventListener("ended", next);
+    audio.addEventListener("play", () => togglePlayPause(true));
+    audio.addEventListener("pause", () => togglePlayPause(false));
+}
 
-    function toggleShuffleRepeatButtons() {
-        shuffleBtn.style.display = isRepeat ? 'none' : 'inline-block';
-        repeatBtn.style.display = isShuffle ? 'none' : 'inline-block';
-    }
-
-    toggleShuffleRepeatButtons();
-
-    function formatDuration(seconds) {
-        const totalSeconds = Math.floor(seconds);
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    // Render listado de canciones
-    songsList.forEach((song, index) => {
-        const item = document.createElement('div');
-        item.classList.add('song-item');
-
-        const imgContainer = document.createElement('div');
-        imgContainer.classList.add('img-container');
-
-        const img = document.createElement('img');
-        img.src = song.cover || '';
-        img.alt = 'Cover';
-        img.width = 60;
-        imgContainer.appendChild(img);
-
-        const infoContainer = document.createElement('div');
-        infoContainer.classList.add('info-container');
-
-        const parts = song.title.split(" - ");
-        const autorText = parts.length >= 2 ? parts[0].trim() : "desconocido";
-        const titleText = parts.length >= 2 ? parts.slice(1).join(" - ").trim() : song.title.trim();
-
-        const title = document.createElement('div');
-        title.classList.add('song-title');
-        title.textContent = titleText.toLowerCase();
-
-        const autor = document.createElement('div');
-        autor.classList.add('song-autor');
-        autor.textContent = autorText.toLowerCase();
-
-        const duration = document.createElement('div');
-        duration.classList.add('song-duration');
-        duration.textContent = formatDuration(song.duration);
-
-        infoContainer.appendChild(title);
-        infoContainer.appendChild(autor);
-        infoContainer.appendChild(duration);
-
-        item.appendChild(imgContainer);
-        item.appendChild(infoContainer);
-
-        item.onclick = () => loadSong(index);
-
-        listContainer.appendChild(item);
-    });
-
-    if (songsList.length > 0) {
-        loadSong(0, false);
-    }
-    // Ocultar loader con animación
-    loader.classList.add('loader-exit');
-
-    // Después de la animación, sacarlo del DOM
-    setTimeout(() => {
-        loader.style.display = 'none';
-    }, 2200); // mismo tiempo que la transición
-
-    // Botones de control
-    playBtn.onclick = () => {
-        if (currentIndex === -1 && songsList.length > 0) {
-            loadSong(0);
-        } else {
-            audio.play();
-            audioContext.resume();
-            togglePlayPause(true);
-            draw();
-        }
-    };
-
-    pauseBtn.onclick = () => {
-        audio.pause();
-        togglePlayPause(false);
-    };
-
-    nextBtn.onclick = () => {
-        if (isShuffle) {
-            const randomIndex = Math.floor(Math.random() * songsList.length);
-            loadSong(randomIndex);
-        } else if (currentIndex + 1 < songsList.length) {
-            loadSong(currentIndex + 1);
-        } else if (isRepeat) {
-            loadSong(0);
-        }
-    };
-
-    prevBtn.onclick = () => {
-        if (currentIndex - 1 >= 0) {
-            loadSong(currentIndex - 1);
-        }
-    };
-
-    shuffleBtn.onclick = () => {
-        isShuffle = !isShuffle;
-        shuffleBtn.classList.toggle("active", isShuffle);
-        if (isShuffle) {
-            isRepeat = false;
-            repeatBtn.classList.remove("active");
-        } else {
-            // Si apago shuffle, enciendo repeat
-            isRepeat = true;
-            repeatBtn.classList.add("active");
-        }
-        toggleShuffleRepeatButtons();
-    };
-
-    repeatBtn.onclick = () => {
-        isRepeat = !isRepeat;
-        repeatBtn.classList.toggle("active", isRepeat);
-        if (isRepeat) {
-            isShuffle = false;
-            shuffleBtn.classList.remove("active");
-        } else {
-            // Si apago repeat, enciendo shuffle
-            isShuffle = true;
-            shuffleBtn.classList.add("active");
-        }
-        toggleShuffleRepeatButtons();
-    };
-
-    audio.addEventListener("ended", () => {
-        if (isShuffle) {
-            const randomIndex = Math.floor(Math.random() * songsList.length);
-            loadSong(randomIndex);
-        } else if (currentIndex + 1 < songsList.length) {
-            loadSong(currentIndex + 1);
-        } else if (isRepeat) {
-            loadSong(0);
-        } else {
-            togglePlayPause(false);
-        }
-    });
-
-    audio.addEventListener("timeupdate", () => {
-        if (!isNaN(audio.duration)) {
-            minuteContent.textContent = `${formatDuration(audio.currentTime)} / ${formatDuration(audio.duration)}`;
-        } else {
-            minuteContent.textContent = `${formatDuration(audio.currentTime)} / 0:00`;
-        }
-    });
-
-
-});
-
-window.electronAPI.onTrayControl((action) => {
-    if (action === 'togglePlayPause') {
-        if (audio.paused) {
-            audio.play();
-        } else {
-            audio.pause();
-        }
-    } else if (action === 'next') {
-        nextBtn.click();
-    } else if (action === 'prev') {
-        prevBtn.click();
-    }
-});
+// Inicializar app
+initApp();
