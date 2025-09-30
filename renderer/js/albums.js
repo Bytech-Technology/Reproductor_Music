@@ -1,30 +1,48 @@
 import { setAlbums, setLibrary, saveData } from "./storage.js";
-import { renderSongs, attachHandlersToList } from "./ui.js";
+import { renderSongs, attachHandlersToList, showNotification } from "./ui.js";
 
 // Muestra modal para crear un nuevo álbum
 export function showCreateAlbumModal(albumModal, albums, library, pendingSongToAddRef) {
-    if (!albumModal) { alert("Modal no encontrado"); return; }
+    if (!albumModal) { showNotification("Modal no encontrado", "error"); return; }
 
     albumModal.innerHTML = `
-        <div class="album-card">
-            <h3>Crear nuevo álbum</h3>
-            <input type="text" id="album-name" placeholder="Nombre del álbum">
-            <div style="margin-top:1rem; display:flex; gap:.5rem; justify-content:center;">
-                <button id="create-album">Crear</button>
-                <button id="close-album">Cancelar</button>
+        <div class="album-card fancy">
+            <div class="album-card-header">
+                <h3><img src="../assets/logo.png" class="icon" width="25" height="25"> Crear nuevo álbum</h3>
+                <p>Escribe un nombre y guarda tu álbum personalizado</p>
+            </div>
+            <div class="album-form">
+                <div class="album-preview">
+                    <div id="album-cover-preview" class="album-cover-small">?</div>
+                </div>
+                <input type="text" id="album-name" placeholder="Nombre del álbum" class="album-input">
+            </div>
+            <div class="album-actions">
+                <button id="create-album" class="btn primary">Crear</button>
+                <button id="close-album" class="btn danger">Cancelar</button>
             </div>
         </div>
     `;
 
     albumModal.classList.remove("hidden");
 
+    const nameInput = albumModal.querySelector("#album-name");
+    const coverPreview = albumModal.querySelector("#album-cover-preview");
     const createBtnLocal = albumModal.querySelector("#create-album");
     const closeBtnLocal = albumModal.querySelector("#close-album");
 
+    // Actualiza preview dinámico
+    nameInput.addEventListener("input", () => {
+        const val = nameInput.value.trim();
+        coverPreview.textContent = val ? val.charAt(0).toUpperCase() : "?";
+    });
+
     createBtnLocal.onclick = () => {
-        const nameInput = albumModal.querySelector("#album-name");
         const name = nameInput ? nameInput.value.trim() : "";
-        if (!name) { alert("Ingrese un nombre de álbum"); return; }
+        if (!name) {
+            showNotification("Ingrese un nombre de álbum", "warning");
+            return;
+        }
 
         albums[name] = true;
         setAlbums(albums);
@@ -40,6 +58,7 @@ export function showCreateAlbumModal(albumModal, albums, library, pendingSongToA
         setLibrary(library);
         saveData();
         albumModal.classList.add("hidden");
+        showNotification("Álbum creado con éxito", "success");
     };
 
     closeBtnLocal.onclick = () => {
@@ -48,16 +67,17 @@ export function showCreateAlbumModal(albumModal, albums, library, pendingSongToA
     };
 }
 
+
 // Muestra modal para agregar una canción a uno o varios álbumes
 export function showAddToAlbumsModal(
     albumModal, albums, library, song, songsList,
     currentAlbumRef, listContainer, tabLibrary, loadSong
 ) {
-    if (!albumModal) { alert("Modal no encontrado"); return; }
+    if (!albumModal) { showNotification("Modal no encontrado", "error"); return; }
 
     const albumNames = Object.keys(albums);
     if (albumNames.length === 0) {
-        alert("Primero debes crear un álbum");
+        showNotification("Primero debes crear un álbum", "info");
         showCreateAlbumModal(albumModal, albums, library, { value: song });
         return;
     }
@@ -85,6 +105,7 @@ export function showAddToAlbumsModal(
             </div>
             <div class="album-actions">
                 <button id="confirm-add" class="btn primary">Agregar</button>
+                <button id="open-albumModal" class="btn secondary">Crear</button>
                 <button id="cancel-add" class="btn danger">Cancelar</button>
             </div>
         </div>
@@ -95,7 +116,7 @@ export function showAddToAlbumsModal(
     albumModal.querySelector("#confirm-add").onclick = () => {
         const checked = albumModal.querySelectorAll("#albums-checkboxes input:checked");
         if (checked.length === 0) {
-            alert("Debes seleccionar al menos un álbum antes de agregar.");
+            showNotification("Debes seleccionar al menos un álbum antes de agregar.", "warning");
             return;
         }
 
@@ -109,7 +130,7 @@ export function showAddToAlbumsModal(
 
         saveData();
         albumModal.classList.add("hidden");
-        alert("Agregado a los álbumes seleccionados");
+        showNotification("Agregado a los álbumes seleccionados", "success");
 
         // refrescar si estamos en un álbum
         if (currentAlbumRef.value) {
@@ -132,6 +153,11 @@ export function showAddToAlbumsModal(
             attachHandlersToList(listContainer, filtered, loadSong, showAddToAlbumsModal);
         }
     };
+
+    albumModal.querySelector("#open-albumModal").onclick = () => {
+        albumModal.classList.add("hidden");
+        showCreateAlbumModal(albumModal, albums, library, { value: song });
+    }
 
     albumModal.querySelector("#cancel-add").onclick = () => {
         albumModal.classList.add("hidden");
