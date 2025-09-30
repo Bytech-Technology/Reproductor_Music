@@ -1,0 +1,91 @@
+.list-music-content{
+    overflow-y: auto;
+    margin-top: 1rem;
+    margin-bottom: 4rem;
+}
+
+.list-music-content::-webkit-scrollbar {
+    width: 5px;
+}
+
+.list-music-content::-webkit-scrollbar-thumb {
+    background-color: var(--violet);
+    border-radius: 10px;
+}
+
+.list-music-content::-webkit-scrollbar-track {
+    background-color: var(--gray_back);
+}
+
+.list-music-content::-webkit-scrollbar-button {
+    display: none;
+}
+
+.song-item {
+    display: flex;
+    align-items: start;
+    padding: 1rem;
+    height: 100px;
+    border-radius: 20px;
+    transition: all .3s ease-in-out;
+    cursor: pointer;
+    text-overflow: ellipsis;
+
+    &:hover {
+        background: var(--hover_music);
+    }
+
+    /* image del cover */
+    .img-container {
+        margin-right: .5rem;
+        overflow: hidden;
+        width: 70px;
+        height: 100%;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+
+        }
+    }
+
+    .info-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .song-title {
+        text-transform: uppercase;
+        color: #fff;
+    }
+
+    .song-autor {
+        text-transform: uppercase;
+        color: var(--gray_back);
+        margin-bottom: .5rem;
+    }
+
+    .song-duration {
+        color: var(--violet);
+        margin-top: auto;
+    }
+
+    .actions-container {
+        margin-left: auto;
+
+        button {
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            cursor: pointer;
+        }
+    }
+}
+
+.song-item.playing {
+    background: var(--music_playin);
+    transition: all 1s ease-in-out;
+}
