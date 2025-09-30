@@ -92,3 +92,21 @@ export function attachHandlersToList(listContainer, currentSongs, loadSong, show
     }
   });
 }
+
+export function showNotification(message, type = "info", duration = 3000) {
+    const notif = document.createElement("div");
+    notif.className = `notification ${type}`;
+    notif.textContent = message;
+    document.body.appendChild(notif);
+
+    // Forzar reflow para activar transición
+    requestAnimationFrame(() => {
+        notif.classList.add("show");
+    });
+
+    // Remover después de X segundos
+    setTimeout(() => {
+        notif.classList.remove("show");
+        setTimeout(() => notif.remove(), 500);
+    }, duration);
+}
