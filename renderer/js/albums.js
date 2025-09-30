@@ -58,6 +58,7 @@ export function showAddToAlbumsModal(
     const albumNames = Object.keys(albums);
     if (albumNames.length === 0) {
         alert("Primero debes crear un álbum");
+        showCreateAlbumModal(albumModal, albums, library, { value: song });
         return;
     }
 
