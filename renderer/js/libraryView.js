@@ -77,8 +77,8 @@ export function initTabs(tabAll, tabLibrary, listContainer, songsList, albums, l
           const header = document.createElement("div");
           header.classList.add("album-header");
           header.innerHTML = `
-            <button id="back-to-library">Volver</button>
-            <h2>${albumName}</h2>
+            <button id="back-to-library"><img src="../assets/skip-previous.svg"></button>
+            <h2 style="margin-right:1rem;">${albumName}</h2>
           `;
           listContainer.prepend(header);
 
