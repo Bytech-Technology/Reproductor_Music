@@ -4,7 +4,9 @@ import { formatDuration } from "./dom.js";
 /**
  * Renderiza la lista de canciones en el contenedor
  */
-export function renderSongs(list, listContainer, showAddCallback, loadSong) {
+export function renderSongs(list, listContainer, showAddCallback, loadSong, options = {}) {
+  const { isInAlbum = false, albumName = null, library = null, refresh = null } = options;
+
   if (!listContainer) {
     console.error("[DEBUG] renderSongs: listContainer no existe");
     return;
@@ -53,10 +55,16 @@ export function renderSongs(list, listContainer, showAddCallback, loadSong) {
     const actionsContainer = document.createElement("div");
     actionsContainer.classList.add("actions-container");
     const addBtn = document.createElement("button");
-    addBtn.textContent = "➕";
+    addBtn.textContent = isInAlbum ? "➖" : "➕";
+    
     addBtn.onclick = (e) => {
       e.stopPropagation();
-      showAddCallback(song);
+      if (isInAlbum && albumName && library) {
+        library[albumName] = (library[albumName] || []).filter(id => id !== song.id);
+        if (typeof refresh === "function") refresh()
+      }else {
+        showAddCallback(song);
+      }
     };
 
     actionsContainer.appendChild(addBtn);
