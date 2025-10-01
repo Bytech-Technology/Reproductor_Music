@@ -71,7 +71,24 @@ export function initTabs(tabAll, tabLibrary, listContainer, songsList, albums, l
             filtered,
             listContainer,
             (song) => showAddToAlbumsModal(albumModal, albums, library, song, songsList, state.currentAlbum, listContainer, tabLibrary, loadSong),
-            loadSong
+            loadSong,
+            {
+              isInAlbum: true,
+              albumName,
+              library,
+              refresh: () => {
+                const newIds = library[albumName] || [];
+                const newFiltered = songsList.filter(song => newIds.includes(song.id));
+                state.currentFilteredSongs = newFiltered;
+                renderSongs(
+                  newFiltered,
+                  listContainer,
+                  (song) => showAddToAlbumsModal(albumModal, albums, library, song, songsList, state.currentAlbum, listContainer, tabLibrary, loadSong),
+                  loadSong,
+                  { isInAlbum: true, albumName, library, refresh: () => tabLibrary.click()}
+                );
+              }
+            }
           );
 
           const header = document.createElement("div");
