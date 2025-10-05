@@ -1,5 +1,5 @@
 import { getEl } from "./dom.js";
-import { play, pause, next, prev, toggleShuffle, toggleRepeat } from "./player.js";
+import { play, pause, next, prev, toggleShuffle, toggleRepeat, getState } from "./player.js";
 
 let playBtn, pauseBtn;
 
@@ -15,7 +15,9 @@ export function initControls(audio) {
     const shuffleBtn = getEl('shuffle');
     const repeatBtn = getEl('repeat');
 
-    if (repeatBtn) repeatBtn.classList.add("active");
+    const { isShuffle, isRepeat } = getState();
+    if (shuffleBtn) shuffleBtn.classList.toggle("active", isShuffle);
+    if (repeatBtn) repeatBtn.classList.toggle("active", isRepeat);
 
     // Play/Pause
     if (playBtn) playBtn.onclick = () => play();
@@ -29,8 +31,10 @@ export function initControls(audio) {
     if (shuffleBtn) {
         shuffleBtn.onclick = () => {
             const state = toggleShuffle();
-            shuffleBtn.classList.toggle("active", state.isShuffle);
-            if (repeatBtn) repeatBtn.classList.toggle("active", state.isRepeat);
+            repeatBtn.classList.remove("active");
+            shuffleBtn.classList.remove("active");
+            if (state.isRepeat) repeatBtn.classList.add("active");
+            if (state.isShuffle) shuffleBtn.classList.add("active");
         };
     }
 
@@ -38,8 +42,10 @@ export function initControls(audio) {
     if (repeatBtn) {
         repeatBtn.onclick = () => {
             const state = toggleRepeat();
-            repeatBtn.classList.toggle("active", state.isRepeat);
-            if (shuffleBtn) shuffleBtn.classList.toggle("active", state.isShuffle);
+            repeatBtn.classList.remove("active");
+            shuffleBtn.classList.remove("active");
+            if (state.isRepeat) repeatBtn.classList.add("active");
+            if (state.isShuffle) shuffleBtn.classList.add("active");
         };
     }
 }
