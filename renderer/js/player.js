@@ -66,8 +66,17 @@ export function toggleShuffle() {
 }
 
 export function toggleRepeat() {
-  isRepeat = !isRepeat;
-  if (isRepeat) isShuffle = false;
+  if (isRepeat) {
+    isRepeat = false;
+    isShuffle = true;
+  } else {
+    isRepeat = true;
+    isShuffle = false;
+  }
+  return { isShuffle, isRepeat };
+}
+
+export function getState() {
   return { isShuffle, isRepeat };
 }
 
