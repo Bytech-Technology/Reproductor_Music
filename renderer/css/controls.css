@@ -69,5 +69,9 @@
     border: none;
     outline: none;
     cursor: pointer;
+    display: none;
+  }
+  button.active{
+    display: inline-block;
   }
 }
