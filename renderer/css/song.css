@@ -1,5 +1,6 @@
 .list-music-content{
     overflow-y: auto;
+    overflow-x: hidden;
     margin-top: 1rem;
     margin-bottom: 4rem;
 }
@@ -25,11 +26,10 @@
     display: flex;
     align-items: start;
     padding: 1rem;
-    height: 100px;
+    height: 80px;
     border-radius: 20px;
     transition: all .3s ease-in-out;
     cursor: pointer;
-    text-overflow: ellipsis;
 
     &:hover {
         background: var(--hover_music);
@@ -40,14 +40,13 @@
         margin-right: .5rem;
         overflow: hidden;
         width: 70px;
-        height: 100%;
+        height: calc(70px - 2rem);
 
         img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
-
         }
     }
 
@@ -59,17 +58,18 @@
     .song-title {
         text-transform: uppercase;
         color: #fff;
+        font-size: 12px;
     }
 
     .song-autor {
         text-transform: uppercase;
         color: var(--gray_back);
-        margin-bottom: .5rem;
+        font-size: 12px;
     }
 
     .song-duration {
         color: var(--violet);
-        margin-top: auto;
+        font-size: 12px;
     }
 
     .actions-container {
@@ -83,6 +83,39 @@
             cursor: pointer;
         }
     }
+}
+/* === Drag & Drop Estilos === */
+
+/* Mientras se arrastra */
+.song-item.dragging {
+  opacity: 0.5;
+  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed #888;
+  cursor: grabbing;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Zona de destino mientras estás encima */
+.song-item.drag-over {
+  border-top: 2px solid var(--violet); /* color guía */
+  background: rgba(0, 188, 212, 0.08);
+}
+
+/* Suaviza las transiciones */
+.song-item {
+  transition: transform 0.15s ease, background 0.2s ease, opacity 0.15s ease;
+}
+
+/* Cursor cuando se puede arrastrar */
+.song-item[draggable="true"] {
+  cursor: grab;
+}
+
+/* Ícono visual que acompaña el drag (opcional si querés más detalle) */
+.song-item img {
+  pointer-events: none;
+  user-select: none;
 }
 
 .song-item.playing {
