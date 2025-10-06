@@ -5,7 +5,7 @@ import { formatDuration } from "./dom.js";
  * Renderiza la lista de canciones en el contenedor
  */
 export function renderSongs(list, listContainer, showAddCallback, loadSong, options = {}) {
-  const { isInAlbum = false, albumName = null, library = null, refresh = null } = options;
+  const { isInAlbum = false, albumName = null, library = null, refresh = null, onReorder = null } = options;
 
   if (!listContainer) {
     console.error("[DEBUG] renderSongs: listContainer no existe");
@@ -13,9 +13,14 @@ export function renderSongs(list, listContainer, showAddCallback, loadSong, opti
   }
 
   listContainer.innerHTML = "";
+
+  let dragStartIndex = null;
+  
   list.forEach((song, index) => {
     const item = document.createElement("div");
     item.classList.add("song-item");
+    item.draggable = true;
+    item.dataset.index = index;
 
     // Cover
     const imgContainer = document.createElement("div");
@@ -76,6 +81,43 @@ export function renderSongs(list, listContainer, showAddCallback, loadSong, opti
 
     // Al clickear toda la fila
     item.onclick = () => loadSong(index);
+
+    // Drag and Drop
+    item.addEventListener("dragstart", (e) =>{
+      dragStartIndex = index;
+      item.classList.add("dragging");
+    })
+
+    item.addEventListener("dragover", (e) =>{
+      e.preventDefault();
+      item.classList.add("drag-over");
+    })
+
+    item.addEventListener("dragleave", (e) =>{
+      item.classList.remove("drag-over");
+    })
+
+    item.addEventListener("drop", (e) =>{
+      e.preventDefault();
+      item.classList.remove("drag-over");
+      const dragEndIndex = parseInt(item.dataset.index);
+
+      if(dragStartIndex !== null && dragEndIndex !== null && dragStartIndex !== dragEndIndex){
+
+        const moved = list.splice(dragStartIndex, 1)[0];
+        list.splice(dragEndIndex, 0, moved);
+
+        if (typeof onReorder === "function") {
+          onReorder(list);
+        }
+        renderSongs(list, listContainer, showAddCallback, loadSong, options)
+      }
+    });
+
+    item.addEventListener("dragend", () => {
+      item.classList.remove("dragging");
+      dragStartIndex = null;
+    })
 
     listContainer.appendChild(item);
   });
