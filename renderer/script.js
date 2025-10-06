@@ -59,7 +59,13 @@ function handleMusicList(songs) {
             state.songsList,
             dom.listContainer,
             (song) => showAddToAlbumsModal(dom.albumModal, albums, library, song, state.songsList, state.currentAlbum, dom.listContainer, dom.tabLibrary, loadSong),
-            loadSong
+            loadSong,
+            {
+                onReorder: (newOrder) => {
+                    state.songsList = [...newOrder];
+                    console.log("[DEBUG] Nuevo orden guardado temporalmente", state.songsList.map(s => s.title));
+                }
+            }
         );
 
         const getCurrentFilteredSongs = initTabs(
