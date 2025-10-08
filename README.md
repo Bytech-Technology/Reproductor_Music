@@ -1,85 +1,100 @@
 <p align="center">
-  <img src="assets/logo.png" alt="Icono" width="120" />
+<img src="assets/logo.png" alt="App Icon" width="120" />
 </p>
-
-<h1 align="center">Reproductor de Música en Electron</h1>
-
+<h1 align="center">
+Music Player --- Electron Desktop App
+</h1>
 <p align="center">
-  Este es un reproductor de música de escritorio desarrollado con <a href="https://www.electronjs.org/">Electron</a>, que escanea una carpeta local de archivos `.mp3`, extrae sus metadatos (incluyendo carátulas), y los muestra en una interfaz visual con controles básicos de progreso.
+A fully visual and customizable desktop music player built with
+<a href="https://www.electronjs.org/">Electron</a>.
+It scans your local music folder, extracts metadata and album covers,
+and displays them in a modern interface with real-time visualization and
+playlist management.
 </p>
 
 ---
 
-## 📂 Estructura del proyecto
+## 📂 Project Structure
 
-```
-📁 your-project/
-├── main.js               # Proceso principal (ventana y lógica backend)
-├── preload.js            # Comunicación segura entre frontend y backend
-├── package.json
-├── .gitignore
-├── 📁 assets/            # Íconos SVG para controles
-├── 📁 renderer/
-│   ├── index.html        # Interfaz principal del reproductor
-│   ├── styles.css        # Estilos de la interfaz
-│   └── script.js         # Lógica del reproductor (frontend)
-└── 📁 node_modules/      # Dependencias de Node.js
-```
+    📁 your-project/
+    ├── main.js               # Main process (window and backend logic)
+    ├── preload.js            # Secure bridge between frontend and backend
+    ├── package.json
+    ├── .gitignore
+    ├── 📁 assets/            # App icons and images
+    ├── 📁 renderer/
+    │   ├── index.html        # Main player interface
+    │   ├── styles.css        # UI styles
+    │   └── script.js         # Frontend player logic
+    └── 📁 node_modules/      # Node.js dependencies
 
----
+## 🚀 How to Run the Project
 
-## 🚀 Cómo ejecutar el proyecto
-
-1. **Clonar el repositorio:**
+1. **Clone the repository:**
 
 ```bash
 git clone https://github.com/ZomboySoul/Reproductor_Music.git
 cd Reproductor_Music
 ```
 
-2. **Instalar dependencias:**
+2. **Install dependencies:**
 
 ```bash
 npm install
 ```
 
-3. **Ejecutar la aplicación:**
+3. **Start the app:**
 
 ```bash
 npm start
 ```
 
-> Asegurate de que exista una carpeta con archivos `.mp3` en:  
-> `C:/Users/TU_USUARIO/Desktop/music/`  
-> _(Podés modificar esta ruta en `main.js` si querés usar otra carpeta.)_
+> Make sure a folder containing `.mp3` files exists at:
+> `C:/Users/YOUR_USERNAME/Desktop/music/`
+> *(You can edit this path in `main.js` if you want to use another
+> folder.)*
 
----
+## 💻 Windows Executable (.exe)
 
-## 🧠 Tecnologías utilizadas
+You can also download the **ready-to-run .exe version** from the
+[Releases](https://github.com/ZomboySoul/Reproductor_Music/releases)
+page.
+No Node.js installation required --- just download and play your music
+instantly.
 
-- **Electron**: para crear la app de escritorio
-- **music-metadata**: para extraer información de los archivos de audio
-- **HTML/CSS/JS**: interfaz visual simple y funcional
 
----
+## 🧠 Tech Stack
 
-## ✨ Funcionalidades
+- **Electron** -- Desktop application framework\
+- **music-metadata** -- Extracts metadata and album covers\
+- **HTML / CSS / JavaScript (ES Modules)** -- Frontend logic and
+  styling\
+- **EJS** *(optional, if used)* -- Dynamic template rendering
 
-- ✅ Muestra carátula, título y duración de las canciones
-- ✅ Carga automática de nuevos temas según fecha de creación
-- ✅ Reproductor con controles básicos (play, pausa, anterior, siguiente)
-- ✅ Visualización del progreso en un canvas
-- ✅ Shuffle, repeat, y mejoras en la visualización
+## ✨ Key Features (Updated)
 
----
+- 🎨 **Modern UI:** Redesigned visual interface inspired by Spotify
+  and YouTube Music\
+- 💿 **Album System:** Create, organize, and view custom music albums\
+- 🖱️ **Drag & Drop Playlist:** Reorder your songs easily\
+- 🔊 **Visualizer:** Real-time audio visualization synced with
+  playback\
+- 🧠 **Persistent Data:** Option to save your custom playlist order
+  before exiting\
+- 🎧 **Basic Controls:** Play, pause, next, previous, shuffle, and
+  repeat\
+- ⚡ **Automatic Metadata:** Fetches covers, titles, and durations
+  from files
 
-## 🖼️ Vista previa
+## 🖼️ Preview
 
-![preview](./assets/screen.png)  
+<center>
+    <img src="./assets/screen2.png" alt="Screen Preview" width="550" />
+    <img src="./assets/screen3.png" alt="Screen Preview" width="550" />
+    <img src="./assets/screen4.png" alt="Screen Preview" width="550" />
+</center>
 
----
-
-## 📦 Dependencias principales
+## 📦 Main Dependencies
 
 ```json
 {
@@ -88,16 +103,13 @@ npm start
 }
 ```
 
-> Asegurate de actualizar las versiones en `package.json`.
+> Make sure to keep dependencies up to date in `package.json`.
 
----
+## 📄 License
 
-## 📄 Licencia
+This project is licensed under the [MIT License](LICENSE).
 
-Este proyecto está bajo la licencia [MIT](LICENSE).
+## 👤 Author
 
----
-
-## 💡 Autor
-
-Desarrollado por [Agustín Lezcano](https://github.com/ZomboySoul) – Argentina 🇦🇷
+Developed by [ZomboySoul](https://github.com/Bytech-Technology) ---
+Argentina 🇦🇷
